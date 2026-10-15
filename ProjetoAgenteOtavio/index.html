@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agente Otávio — Assistente Inteligente Azure AI</title>
+    <meta name="description" content="Interface web moderna e interativa para o Agente Otávio conectado ao Azure AI Foundry.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- CSS Principal -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/jpeg" href="avatar.jpg">
+</head>
+<body>
+    <div class="app-background">
+        <div class="glow-orb orb-1"></div>
+        <div class="glow-orb orb-2"></div>
+        <div class="glow-orb orb-3"></div>
+        <div class="grid-overlay"></div>
+    </div>
+
+    <div class="app-container">
+        <!-- Barra Lateral (Sidebar) -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="brand">
+                    <div class="avatar-ring">
+                        <img src="avatar.jpg" alt="Avatar do Agente Otávio" class="sidebar-avatar">
+                        <span class="status-indicator-dot online"></span>
+                    </div>
+                    <div class="brand-text">
+                        <h2>Otávio AI</h2>
+                        <span class="badge-azure">Azure AI Foundry</span>
+                    </div>
+                </div>
+                <button class="icon-button close-sidebar-btn" id="closeSidebarBtn" title="Fechar Menu" aria-label="Fechar menu lateral">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                </button>
+            </div>
+
+            <!-- Botão Nova Conversa -->
+            <button class="btn btn-primary new-chat-btn" id="newChatBtn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+                <span>Nova Conversa</span>
+            </button>
+
+            <!-- Configurações e Status -->
+            <div class="sidebar-section">
+                <span class="section-title">STATUS DO SISTEMA</span>
+                <div class="status-card">
+                    <div class="status-row">
+                        <span class="status-label">Agente:</span>
+                        <span class="status-value highlight" id="agentNameDisplay">otavio-agente</span>
+                    </div>
+                    <div class="status-row">
+                        <span class="status-label">Conexão:</span>
+                        <span class="status-badge connected" id="connectionBadge">
+                            <span class="pulse-dot"></span> Online
+                        </span>
+                    </div>
+                    <div class="status-row">
+                        <span class="status-label">Sessão:</span>
+                        <span class="status-value session-id" id="sessionIdDisplay" title="Sem sessão ativa">Nova</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sugestões Rápidas -->
+            <div class="sidebar-section">
+                <span class="section-title">AÇÕES RÁPIDAS</span>
+                <div class="quick-prompts">
+                    <button class="quick-prompt-btn" data-prompt="Olá! Como você pode me ajudar hoje?">
+                        <span class="qp-icon">👋</span>
+                        <span>Apresentação</span>
+                    </button>
+                    <button class="quick-prompt-btn" data-prompt="Preciso de ajuda com um pedido de reembolso. Como funciona?">
+                        <span class="qp-icon">💰</span>
+                        <span>Solicitar Reembolso</span>
+                    </button>
+                    <button class="quick-prompt-btn" data-prompt="Quais dados preciso enviar para consultar meu pedido?">
+                        <span class="qp-icon">📦</span>
+                        <span>Consultar Pedido</span>
+                    </button>
+                    <button class="quick-prompt-btn" data-prompt="Can you assist me in English as well?">
+                        <span class="qp-icon">🌐</span>
+                        <span>Falar em Inglês</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Preferências -->
+            <div class="sidebar-section">
+                <span class="section-title">CONFIGURAÇÕES</span>
+                <div class="setting-item">
+                    <label for="ttsToggle" class="setting-label">
+                        <span class="setting-icon">🔊</span>
+                        <span>Ler Respostas (Voz)</span>
+                    </label>
+                    <label class="switch">
+                        <input type="checkbox" id="ttsToggle">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <label for="soundEffectsToggle" class="setting-label">
+                        <span class="setting-icon">🔔</span>
+                        <span>Efeitos Sonoros</span>
+                    </label>
+                    <label class="switch">
+                        <input type="checkbox" id="soundEffectsToggle" checked>
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Rodapé da Sidebar -->
+            <div class="sidebar-footer">
+                <button class="btn btn-secondary export-btn" id="exportChatBtn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                    <span>Exportar Conversa</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Área Principal de Chat -->
+        <main class="chat-main">
+            <!-- Cabeçalho Superior -->
+            <header class="chat-header">
+                <div class="header-left">
+                    <button class="icon-button toggle-sidebar-btn" id="toggleSidebarBtn" title="Menu" aria-label="Abrir menu lateral">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+                    </button>
+                    <div class="header-agent-info">
+                        <div class="header-avatar-wrap">
+                            <img src="avatar.jpg" alt="Agente Otávio" class="header-avatar">
+                            <span class="status-indicator-dot online"></span>
+                        </div>
+                        <div>
+                            <div class="header-title-row">
+                                <h1 class="header-agent-name">Agente Otávio</h1>
+                                <span class="tag-model">Azure Agent</span>
+                            </div>
+                            <span class="header-agent-status">Pronto para atendimento especializado</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="header-actions">
+                    <button class="icon-button header-btn" id="headerClearBtn" title="Limpar mensagens" aria-label="Limpar mensagens">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6"/></svg>
+                    </button>
+                    <button class="icon-button header-btn" id="headerInfoBtn" title="Sobre o Agente" aria-label="Informações sobre o agente">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Container de Mensagens -->
+            <div class="chat-messages" id="chatMessages">
+                <!-- Hero de Boas-Vindas (quando não houver mensagens) -->
+                <div class="welcome-hero" id="welcomeHero">
+                    <div class="hero-avatar-large">
+                        <img src="avatar.jpg" alt="Avatar do Agente Otávio">
+                        <div class="avatar-halo"></div>
+                    </div>
+                    <h2 class="hero-title">Como posso te ajudar hoje?</h2>
+                    <p class="hero-subtitle">
+                        Sou o <strong>Agente Otávio</strong>, seu assistente inteligente integrado via 
+                        <span class="gradient-text">Azure AI Foundry</span>. Posso auxiliar com suporte a pedidos, reembolsos, dúvidas operacionais e muito mais.
+                    </p>
+
+                    <!-- Cartões de Boas-Vindas -->
+                    <div class="hero-cards">
+                        <div class="hero-card" data-prompt="Quero saber quais são as políticas para solicitar um reembolso.">
+                            <div class="card-icon">💳</div>
+                            <div class="card-title">Política de Reembolso</div>
+                            <div class="card-desc">Entenda prazos, critérios e requisitos necessários.</div>
+                        </div>
+                        <div class="hero-card" data-prompt="Como faço para verificar o status do meu pedido?">
+                            <div class="card-icon">🔍</div>
+                            <div class="card-title">Consultar Pedido</div>
+                            <div class="card-desc">Saiba quais dados são solicitados pelo agente.</div>
+                        </div>
+                        <div class="hero-card" data-prompt="Olá! Qual é o seu escopo de atendimento?">
+                            <div class="card-icon">⚡</div>
+                            <div class="card-title">Capacidades do Agente</div>
+                            <div class="card-desc">Descubra todas as tarefas que posso realizar.</div>
+                        </div>
+                        <div class="hero-card" data-prompt="Hello! I would like some assistance in English.">
+                            <div class="card-icon">🌍</div>
+                            <div class="card-title">Suporte Multilíngue</div>
+                            <div class="card-desc">Detecção automática de idioma e tom amigável.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- As mensagens enviadas e recebidas serão inseridas aqui dinamicamente -->
+            </div>
+
+            <!-- Indicador de Digitação (Typing indicator) -->
+            <div class="typing-indicator-wrapper" id="typingIndicator" style="display: none;">
+                <div class="typing-avatar">
+                    <img src="avatar.jpg" alt="Agente Otávio">
+                </div>
+                <div class="typing-bubble">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <span class="typing-text">Otávio está processando...</span>
+                </div>
+            </div>
+
+            <!-- Barra Inferior de Entrada (Input Form) -->
+            <div class="chat-input-wrapper">
+                <form class="chat-input-form" id="chatForm">
+                    <div class="input-container">
+                        <textarea 
+                            id="messageInput" 
+                            class="chat-textarea" 
+                            placeholder="Envie uma mensagem para o Agente Otávio... (Shift + Enter para quebra de linha)" 
+                            rows="1" 
+                            maxlength="2000"
+                            autocomplete="off"
+                            required
+                        ></textarea>
+
+                        <div class="input-actions-bar">
+                            <div class="input-left-tools">
+                                <button type="button" class="tool-btn" id="voiceInputBtn" title="Falar por microfone" aria-label="Entrada por voz">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8"/></svg>
+                                    <span class="voice-wave" id="voiceWave"></span>
+                                </button>
+                                <span class="char-counter" id="charCounter">0/2000</span>
+                            </div>
+
+                            <button type="submit" class="send-button" id="sendBtn" title="Enviar mensagem" aria-label="Enviar mensagem">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+                                <span>Enviar</span>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+                <div class="chat-footer-note">
+                    Desenvolvido com <strong>Azure AI Foundry</strong> &amp; <strong>AIProjectClient</strong>. As respostas podem conter análise de sentimento e metadados contextuais.
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Informativo -->
+    <div class="modal-backdrop" id="infoModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3>Sobre o Agente Otávio</h3>
+                <button class="icon-button close-modal-btn" id="closeModalBtn" aria-label="Fechar janela">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="modal-content">
+                <div class="modal-agent-overview">
+                    <img src="avatar.jpg" alt="Avatar" class="modal-avatar">
+                    <div>
+                        <h4>otavio-agente</h4>
+                        <p class="text-muted">Instância hospedada no Microsoft Azure AI Projects</p>
+                    </div>
+                </div>
+
+                <div class="info-grid">
+                    <div class="info-cell">
+                        <span class="info-cell-title">Recurso Azure:</span>
+                        <code>aula-agente-otavio-resource</code>
+                    </div>
+                    <div class="info-cell">
+                        <span class="info-cell-title">Protocolo de Conversa:</span>
+                        <span>Preview Agents Responses API</span>
+                    </div>
+                    <div class="info-cell">
+                        <span class="info-cell-title">Autenticação:</span>
+                        <span>DefaultAzureCredential</span>
+                    </div>
+                    <div class="info-cell">
+                        <span class="info-cell-title">Persistência:</span>
+                        <span>Thread com Histórico Ativo</span>
+                    </div>
+                </div>
+
+                <div class="info-note">
+                    <strong>Dica de uso:</strong> O agente detecta automaticamente o idioma e ajusta o tom de resposta com etiquetas como <em>Idioma: Português | Tom: Neutro</em>.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Container de Notificações Toast -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+</body>
+</html>
